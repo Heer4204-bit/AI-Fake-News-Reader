@@ -1,1 +1,1 @@
-# AI-Fake-News-Reader
+# AI Fake News Reader 📰
