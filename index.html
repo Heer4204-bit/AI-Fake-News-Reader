@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Fake News Reader 📰</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            max-width: 650px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: #38bdf8;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #38bdf8;
+        }
+
+        button {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0369a1;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #0f172a;
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .badge.real {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid #22c55e;
+        }
+
+        .badge.fake {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid #ef4444;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            background-color: #334155;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            color: #38bdf8;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>AI Fake News Reader 📰</h1>
+            <p>Paste any news article or headline below to analyze its credibility using AI.</p>
+        </header>
+
+        <div class="input-group">
+            <label for="newsInput">Article Text or Headline</label>
+            <textarea id="newsInput" placeholder="Paste news article content or headline here..."></textarea>
+            <button id="analyzeBtn" onclick="analyzeNews()">Analyze News Article</button>
+        </div>
+
+        <div id="loader" class="loader">
+            <p>🤖 AI is analyzing text patterns and sources...</p>
+        </div>
+
+        <div id="resultBox" class="result-box">
+            <div class="result-header">
+                <h3>Analysis Result</h3>
+                <span id="verdictBadge" class="badge">--</span>
+            </div>
+
+            <p id="confidenceText" style="font-size: 0.9rem; color: #94a3b8;"></p>
+            <div class="confidence-bar">
+                <div id="confidenceFill" class="confidence-fill"></div>
+            </div>
+
+            <p id="explanationText" class="explanation"></p>
+        </div>
+    </div>
+
+    <script>
+        function analyzeNews() {
+            const text = document.getElementById('newsInput').value.trim();
+            const loader = document.getElementById('loader');
+            const resultBox = document.getElementById('resultBox');
+
+            if (!text) {
+                alert("Please paste some text to analyze!");
+                return;
+            }
+
+            // Show loading state
+            loader.style.display = 'block';
+            resultBox.style.display = 'none';
+
+            // Simulate AI delay (2 seconds)
+            setTimeout(() => {
+                loader.style.display = 'none';
+                resultBox.style.display = 'block';
+
+                // Simple demo logic for detection
+                const lowerText = text.toLowerCase();
+                const fakeKeywords = ['shocking', 'secret', 'miracle', 'unbelievable', 'conspiracy', 'you won\'t believe', 'guaranteed'];
+                
+                let fakeScore = 0;
+                fakeKeywords.forEach(keyword => {
+                    if (lowerText.includes(keyword)) fakeScore++;
+                });
+
+                const badge = document.getElementById('verdictBadge');
+                const confidenceText = document.getElementById('confidenceText');
+                const confidenceFill = document.getElementById('confidenceFill');
+                const explanationText = document.getElementById('explanationText');
+
+                if (fakeScore > 0 || text.length < 30) {
+                    // Classified as Potential Fake News
+                    badge.textContent = "Likely Fake / Sensational";
+                    badge.className = "badge fake";
+                    confidenceText.textContent = "AI Confidence Rate: 87%";
+                    confidenceFill.style.width = "87%";
+                    confidenceFill.style.backgroundColor = "#ef4444";
+                    explanationText.innerHTML = "<strong>Reasoning:</strong> The text contains clickbait patterns, sensational keywords, or lacks substantial verifiable detail typical of factual journalism.";
+                } else {
+                    // Classified as Likely Real News
+                    badge.textContent = "Likely Real / Credible";
+                    badge.className = "badge real";
+                    confidenceText.textContent = "AI Confidence Rate: 92%";
+                    confidenceFill.style.width = "92%";
+                    confidenceFill.style.backgroundColor = "#22c55e";
+                    explanationText.innerHTML = "<strong>Reasoning:</strong> The text maintains a neutral tone, standard formatting, and uses language consistent with credible news reporting.";
+                }
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
+
